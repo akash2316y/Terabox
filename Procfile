@@ -1,1 +1,1 @@
-web: python bot.py
+aria2c ... && python3 terabox.py
