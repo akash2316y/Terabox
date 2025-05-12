@@ -10,3 +10,4 @@ gunicorn
 gevent
 flask
 aria2p
+python-telegram-bot==13.15
