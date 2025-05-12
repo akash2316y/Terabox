@@ -9,3 +9,4 @@ python-dotenv
 gunicorn
 gevent
 flask
+aria2p
