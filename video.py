@@ -51,7 +51,7 @@ async def download(url: str, user_id: int, filename: str, reply_msg, user_mentio
     sanitized_filename = filename.replace("/", "_").replace("\\", "_")
     file_path = os.path.join(os.getcwd(), sanitized_filename)
 
-    cookies = await fetch_json(f"{TERABOX_API_URL}/gc?token={TERABOX_API_TOKEN}")
+    cookies = await fetch_json(f"{TERABOX_API_URL}/url?url={TERABOX_API_TOKEN}")
 
     download_key = f"{user_id}-{sanitized_filename}"  # Unique key per file
     downloads_manager[download_key] = {"downloaded": 0}
