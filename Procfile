@@ -1,1 +1,1 @@
-aria2c ... && python3 terabox.py
+web: python terabox.py
