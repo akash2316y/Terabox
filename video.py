@@ -152,7 +152,7 @@ async def download_video(url, reply_msg, user_mention, user_id, max_retries=3):
         return None, None, None, None
 
 
-async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg, db_channel_id, user_mention, user_id, message):
+async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg, DUMP_CHAT_ID, user_mention, user_id, message):
     try:
         file_size = os.path.getsize(file_path)
         uploaded = 0
