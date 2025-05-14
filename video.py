@@ -22,7 +22,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 # Terabox API Details
 TERABOX_API_URL = "https://terabox.web.id"
-TERABOX_API_TOKEN = "184db604-9f21-4591-b510-5bdddec4a90c_6987158459"
+TERABOX_API_TOKEN = "ffc819a2-31fa-4515-ab15-f0f71e1d63d2_6987158459"
 THUMBNAIL = "https://envs.sh/JP6.jpg"
 
 downloads_manager = {}
