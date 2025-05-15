@@ -24,6 +24,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 TERABOX_API_URL = "https://terabox.web.id"
 TERABOX_API_TOKEN = "ffc819a2-31fa-4515-ab15-f0f71e1d63d2_6987158459"
 THUMBNAIL = "https://envs.sh/JP6.jpg"
+db_channel_id = -1002460543591
 
 downloads_manager = {}
 
@@ -152,7 +153,7 @@ async def download_video(url, reply_msg, user_mention, user_id, max_retries=3):
         return None, None, None, None
 
 
-async def upload_video(client, file_path, thumbnail_url, video_title, db_channel_id, reply_msg, user_mention, user_id, message):
+async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg, user_mention, user_id, message):
     try:
         file_size = os.path.getsize(file_path)
         uploaded = 0
