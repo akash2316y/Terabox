@@ -20,6 +20,42 @@ import time
 from datetime import datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
+def generate_thumbnail(video_path: str, output_path: str, time_position: int = 10) -> str:
+    try:
+        subprocess.run(
+            [
+                "ffmpeg", "-ss", str(time_position), "-i", video_path,
+                "-vframes", "1", "-q:v", "2", "-vf", "scale=320:-1",
+                output_path
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True
+        )
+        return output_path if os.path.exists(output_path) else None
+    except Exception as e:
+        logging.warning(f"Thumbnail generation failed: {e}")
+        return None
+
+def get_video_duration(file_path: str) -> int:
+    try:
+        result = subprocess.run(
+            [
+                "ffprobe", "-v", "error", "-select_streams", "v:0",
+                "-show_entries", "format=duration",
+                "-of", "default=noprint_wrappers=1:nokey=1",
+                file_path
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        return int(float(result.stdout.strip()))
+    except Exception as e:
+        logging.warning(f"Failed to get duration: {e}")
+        return 0
+
+
 # Terabox API Details
 TERABOX_API_URL = "https://terabox.web.id"
 TERABOX_API_TOKEN = "ffc819a2-31fa-4515-ab15-f0f71e1d63d2_6987158459"
