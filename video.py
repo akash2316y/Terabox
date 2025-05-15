@@ -209,12 +209,12 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
         # Step 2: Fallback to generate thumbnail from the video
         if not thumbnail_path:
             thumbnail_path = f"{os.path.splitext(file_path)[0]}_thumb.jpg"
-            generated = await generate_thumbnail(file_path, thumbnail_path)
+            generated = generate_thumbnail(file_path, thumbnail_path)
             if not generated:
                 thumbnail_path = None  # Use no thumb if generation also fails
 
         # Step 3: Get video duration (optional - to use in caption)
-        video_duration = await get_video_duration(file_path)
+        video_duration = get_video_duration(file_path)
 
         async def progress(current, total):
             nonlocal uploaded, last_update_time
