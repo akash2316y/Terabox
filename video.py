@@ -18,6 +18,7 @@ import logging
 import requests
 import time
 from datetime import datetime
+import subprocess
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 def generate_thumbnail(video_path: str, output_path: str, time_position: int = 10) -> str:
@@ -196,15 +197,24 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
         start_time = datetime.now()
         last_update_time = time.time()
 
-
-        # **Download the Thumbnail (Fix)**
+        # Step 1: Try downloading the thumbnail from URL
         thumbnail_path = None
         if thumbnail_url:
             try:
                 thumbnail_path = await download_thumbnail(thumbnail_url)
             except Exception as e:
                 logging.warning(f"Failed to download thumbnail: {e}")
-                thumbnail_path = None  # Avoid crash if thumbnail download fails
+                thumbnail_path = None
+
+        # Step 2: Fallback to generate thumbnail from the video
+        if not thumbnail_path:
+            thumbnail_path = f"{os.path.splitext(file_path)[0]}_thumb.jpg"
+            generated = await generate_thumbnail(file_path, thumbnail_path)
+            if not generated:
+                thumbnail_path = None  # Use no thumb if generation also fails
+
+        # Step 3: Get video duration (optional - to use in caption)
+        video_duration = await get_video_duration(file_path)
 
         async def progress(current, total):
             nonlocal uploaded, last_update_time
@@ -232,44 +242,41 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
                 except Exception as e:
                     logging.warning(f"Error updating progress message: {e}")
 
-        # **Upload video to the database channel**
+        # Step 4: Upload video to DB channel
         with open(file_path, 'rb') as file:
             collection_message = await client.send_video(
                 chat_id=db_channel_id,
                 video=file,
-                caption=f"✨ {video_title}\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>",
-                thumb=thumbnail_path if thumbnail_path else None,  # Use local file
+                caption=f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>",
+                thumb=thumbnail_path if thumbnail_path else None,
                 progress=progress
             )
 
-        # **Copy the video from the DB channel to user (No forward header)**
+        # Step 5: Forward to user (copy without forward header)
         copied_msg = await client.copy_message(
             chat_id=message.chat.id,
             from_chat_id=db_channel_id,
             message_id=collection_message.id
         )
 
-        # Prepare customized caption & buttons
-        original_caption = f"✨ {video_title}\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
-        caption = "" + original_caption
+        # Step 6: Edit with caption and buttons
+        caption = f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
         reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton(text=button_name, url=button_link)]]) if CHNL_BTN else None
 
-        # Edit caption of copied message
         await copied_msg.edit_caption(
             caption=caption,
             parse_mode=ParseMode.HTML,
             reply_markup=reply_markup
         )
 
-        # **Clean up files**
+        # Step 7: Cleanup
         os.remove(file_path)
-        if thumbnail_path:
-            os.remove(thumbnail_path)  # Delete downloaded thumbnail
+        if thumbnail_path and os.path.exists(thumbnail_path):
+            os.remove(thumbnail_path)
 
         await message.delete()
         await reply_msg.delete()
 
-        # Send sticker (Optional)
         sticker_message = await message.reply_sticker("CAACAgIAAxkBAAEZdwRmJhCNfFRnXwR_lVKU1L9F3qzbtAAC4gUAAj-VzApzZV-v3phk4DQE")
         await asyncio.sleep(5)
         await sticker_message.delete()
