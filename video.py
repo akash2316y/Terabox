@@ -59,7 +59,7 @@ def get_video_duration(file_path: str) -> int:
 
 # Terabox API Details
 TERABOX_API_URL = "https://terabox.web.id"
-TERABOX_API_TOKEN = "bf0d7271-192f-468a-8a46-36179c113e3c_6987158459"
+TERABOX_API_TOKEN = "akash_8110231942"
 THUMBNAIL = "https://envs.sh/JP6.jpg"
 db_channel_id = -1002536904769
 
