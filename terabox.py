@@ -114,8 +114,50 @@ async def handle_message(client, message: Message):
         logging.error(f"Download error: {e}")
         return await reply_msg.edit_text("❌ API returned a broken link.")
 
-    
+@app.on_callback_query()
+async def handle_callback(client, callback_query):
+    data = callback_query.data
 
+    if data == "about":
+        await callback_query.answer()
+        await callback_query.message.reply_text(
+            "🤖 **Bot Information:**\n\n"
+            "• Developer: @yourusername\n"
+            "• Language: Python\n"
+            "• Library: Pyrogram\n"
+            "• Purpose: Download and send Terabox files easily.\n\n"
+            "✨ Just send a valid Terabox link to get started!",
+            reply_markup=InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton("🏠 home", callback_data='home'),
+                    InlineKeyboardButton("❌ close", callback_data='close')
+                ]
+            ]),
+            quote=True
+        )
+
+    elif data == "home":
+        user_mention = callback_query.from_user.mention
+        reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
+        reply_markup = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam"),
+                InlineKeyboardButton("about", callback_data='about')
+            ],
+            [
+                InlineKeyboardButton("🏠 home", callback_data='home'),
+                InlineKeyboardButton("❌ close", callback_data='close')
+            ]
+        ])
+        await callback_query.message.reply_text(reply_message, reply_markup=reply_markup, quote=True)
+
+    elif data == "close":
+        await callback_query.answer("Closing...", show_alert=False)
+        try:
+            await callback_query.message.delete()
+        except Exception as e:
+            logging.warning(f"Failed to delete message: {e}")
+            
 if __name__ == "__main__":
     keep_alive()
     app.run()
