@@ -55,7 +55,7 @@ async def start_command(client, message):
     reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
     
     join_button = InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam")
-    developer_button = InlineKeyboardButton("about", callback_data='about')
+    developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
 
     await client.send_photo(
@@ -164,6 +164,9 @@ async def handle_callback(client, callback_query):
             )
         except Exception as e:
             logging.warning(f"Failed to edit home screen: {e}")
+
+elif query.data == "close":
+        await query.message.delete()
 
 # Run bot
 if __name__ == "__main__":
