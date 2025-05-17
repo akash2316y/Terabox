@@ -155,13 +155,15 @@ async def handle_callback(client, callback_query):
 
         try:
             await callback_query.message.edit_media(
-                media={"type": "photo", "media": "https://envs.sh/JP6.jpg"},
+                media=InputMediaPhoto(
+                    media="https://envs.sh/JP6.jpg",
+                    caption=reply_message
+                ),
                 reply_markup=reply_markup
             )
-            await callback_query.message.edit_caption(reply_message)
         except Exception as e:
             logging.warning(f"Failed to edit home screen: {e}")
-            
+
 # Run bot
 if __name__ == "__main__":
     keep_alive()
