@@ -79,7 +79,7 @@ async def is_user_member(client, user_id):
         logging.error(f"Error checking membership status for user {user_id}: {e}")
         return False
 
-@app.on_message(filters.text)
+@app.on_message(filters.text & ~filters.command)
 async def handle_message(client, message: Message):
     if message.from_user is None:
         logging.error("Message does not contain user information.")
@@ -90,16 +90,16 @@ async def handle_message(client, message: Message):
     is_member = await is_user_member(client, user_id)
 
     valid_domains = [
-    'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com', 
-    'momerybox.com', 'teraboxapp.com', '1024tera.com', 
-    'terabox.app', 'gibibox.com', 'goaibox.com', 'terasharelink.com', 'teraboxlink.com', 'terafileshare.com'
+        'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com',
+        'momerybox.com', 'teraboxapp.com', '1024tera.com',
+        'terabox.app', 'gibibox.com', 'goaibox.com', 'terasharelink.com', 'teraboxlink.com', 'terafileshare.com'
     ]
 
     terabox_link = message.text.strip()
 
+    # Sirf tabhi aage badho jab message me valid domain ho
     if not any(domain in terabox_link for domain in valid_domains):
-        await message.reply_text("ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴀ ᴠᴀʟɪᴅ ᴛᴇʀᴀʙᴏx ʟɪɴᴋ.")
-        return
+        return  # Kuch bhi reply na karo
 
     reply_msg = await message.reply_text("sᴇɴᴅɪɴɢ ʏᴏᴜ ᴛʜᴇ ᴍᴇᴅɪᴀ...🤤")
 
@@ -108,6 +108,12 @@ async def handle_message(client, message: Message):
 
         if file_path is None:
             return await reply_msg.edit_text("Failed to download. The link may be broken.")
+
+        await upload_video(client, file_path, thumbnail_path, video_title, reply_msg, user_mention, user_id, message)
+      
+    except Exception as e:
+        logging.error(f"Download error: {e}")
+        return await reply_msg.edit_text("❌ API returned a broken link.")
 
         await upload_video(client, file_path, thumbnail_path, video_title, reply_msg, user_mention, user_id, message)
       
