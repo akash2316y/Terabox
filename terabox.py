@@ -24,31 +24,15 @@ bot_token = os.environ.get('BOT_TOKEN', '')
 dump_id = os.environ.get('DUMP_CHAT_ID', '')
 fsub_id = os.environ.get('FSUB_ID', '')
 
-# Check for missing env variables
-if not api_id:
-    logging.error("TELEGRAM_API variable is missing! Exiting now")
+if not api_id or not api_hash or not bot_token or not dump_id or not fsub_id:
+    logging.error("One or more environment variables are missing! Exiting.")
     exit(1)
-if not api_hash:
-    logging.error("TELEGRAM_HASH variable is missing! Exiting now")
-    exit(1)
-if not bot_token:
-    logging.error("BOT_TOKEN variable is missing! Exiting now")
-    exit(1)
-if not dump_id:
-    logging.error("DUMP_CHAT_ID variable is missing! Exiting now")
-    exit(1)
-else:
-    dump_id = int(dump_id)
-if not fsub_id:
-    logging.error("FSUB_ID variable is missing! Exiting now")
-    exit(1)
-else:
-    fsub_id = int(fsub_id)
 
-# Initialize bot
+dump_id = int(dump_id)
+fsub_id = int(fsub_id)
+
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-# Start command
 @app.on_message(filters.command("start"))
 async def start_command(client, message):
     user_mention = message.from_user.mention
@@ -58,8 +42,8 @@ async def start_command(client, message):
     developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
 
-    await client.send_photo(
-        chat_id=message.chat.id,
+    # Reply to start message so we can later delete it too
+    await message.reply_photo(
         photo="https://envs.sh/JP6.jpg",
         caption=reply_message,
         reply_markup=reply_markup
@@ -69,17 +53,15 @@ async def start_command(client, message):
 async def is_user_member(client, user_id):
     try:
         member = await client.get_chat_member(fsub_id, user_id)
-        logging.info(f"User {user_id} membership status: {member.status}")
         return member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]
     except Exception as e:
-        logging.error(f"Error checking membership status for user {user_id}: {e}")
+        logging.error(f"Error checking membership: {e}")
         return False
 
 # Handle Terabox links
 @app.on_message(filters.text)
 async def handle_message(client, message: Message):
     if message.from_user is None:
-        logging.error("Message does not contain user information.")
         return
 
     user_id = message.from_user.id
@@ -96,7 +78,7 @@ async def handle_message(client, message: Message):
     terabox_link = message.text.strip()
 
     if not any(domain in terabox_link for domain in valid_domains):
-        return  # Ignore non-Terabox messages
+        return
 
     reply_msg = await message.reply_text("𝖲𝖾𝗇𝖽𝗂𝗇𝗀 𝗒𝗈𝗎 𝗍𝗁𝖾 𝗆𝖾𝖽𝗂𝖺...🤤")
 
@@ -167,9 +149,15 @@ async def handle_callback(client, callback_query):
 
     elif data == "close":
         await callback_query.answer()
-        await callback_query.message.delete()
+        
         try:
-            await callback_query.message.reply_to_message.delete()
+            await callback_query.message.delete()
+        except Exception as e:
+            logging.warning(f"Couldn't delete callback message: {e}")
+
+        try:
+            if callback_query.message.reply_to_message:
+                await callback_query.message.reply_to_message.delete()
         except Exception as e:
             logging.warning(f"Couldn't delete reply_to_message: {e}")
 
