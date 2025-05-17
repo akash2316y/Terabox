@@ -123,20 +123,21 @@ async def handle_callback(client, callback_query):
 
     if data == "about":
         await callback_query.answer()
-        await callback_query.message.reply_text(
-            "🤖 **Bot Information:**\n\n"
-            "• Developer: @yourusername\n"
-            "• Language: Python\n"
-            "• Library: Pyrogram\n"
-            "• Purpose: Download and send Terabox files easily.\n\n"
-            "✨ Just send a valid Terabox link to get started!",
-            reply_markup=InlineKeyboardMarkup([
-                [
-                    InlineKeyboardButton("ʜᴏᴍᴇ", callback_data='home'),
-                    InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data='close')
-                ]
-            ]),
-            quote=True
+        await callback_query.message.edit_caption(
+    caption=(
+        "🤖 **Bot Information:**\n\n"
+        "• Developer: @yourusername\n"
+        "• Language: Python\n"
+        "• Library: Pyrogram\n"
+        "• Purpose: Download and send Terabox files easily.\n\n"
+        "✨ Just send a valid Terabox link to get started!"
+    ),
+    reply_markup=InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("ʜᴏᴍᴇ", callback_data='home'),
+            InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data='close')
+        ]
+    ])
         )
 
     elif data == "home":
@@ -151,11 +152,10 @@ async def handle_callback(client, callback_query):
         await callback_query.message.reply_text(reply_message, reply_markup=reply_markup, quote=True)
 
     elif data == "close":
-        await callback_query.answer("Closing...", show_alert=False)
-        try:
-            await callback_query.message.delete()
-        except Exception as e:
-            logging.warning(f"Failed to delete message: {e}")
+    try:
+        await callback_query.message.delete()
+    except Exception as e:
+        logging.warning(f"Failed to delete message: {e}")
 
 # Run bot
 if __name__ == "__main__":
