@@ -1,3 +1,4 @@
+from pyrogram.types import InputMediaPhoto
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 import logging
