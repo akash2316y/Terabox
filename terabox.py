@@ -98,8 +98,7 @@ async def handle_message(client, message: Message):
     terabox_link = message.text.strip()
 
     if not any(domain in terabox_link for domain in valid_domains):
-        await message.reply_text("ᴘʟᴇᴀsᴇ sᴇɴᴅ ᴀ ᴠᴀʟɪᴅ ᴛᴇʀᴀʙᴏx ʟɪɴᴋ.")
-        return
+        return  # Ignore non-Terabox messages silently
 
     reply_msg = await message.reply_text("𝖲𝖾𝗇𝖽𝗂𝗇𝗀 𝗒𝗈𝗎 𝗍𝗁𝖾 𝗆𝖾𝖽𝗂𝖺...🤤")
 
