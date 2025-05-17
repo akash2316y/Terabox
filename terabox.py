@@ -48,22 +48,19 @@ app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 @app.on_message(filters.command("start"))
 async def start_command(client, message):
-    sticker_message = await message.reply_sticker("CAACAgIAAxkBAAEYonplzwrczhVu3I6HqPBzro3L2JU6YAACvAUAAj-VzAoTSKpoG9FPRjQE")
-    await asyncio.sleep(2)
-    await sticker_message.delete()
     user_mention = message.from_user.mention
     reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
+
     join_button = InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam")
     developer_button = InlineKeyboardButton("about", callback_data='about')
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
-    video_file_id = "/app/Jet-Mirror.mp4"
-    if os.path.exists(video_file_id):
-        await client.send_video(
-            chat_id=message.chat.id,
-            video=video_file_id,
-            caption=reply_message,
-            reply_markup=reply_markup
-        )
+
+    await client.send_photo(
+        chat_id=message.chat.id,
+        photo="https://envs.sh/JP6.jpg",
+        caption=reply_message,
+        reply_markup=reply_markup
+    )
     else:
         await message.reply_text(reply_message, reply_markup=reply_markup)
 
@@ -129,8 +126,8 @@ async def handle_callback(client, callback_query):
             "✨ Just send a valid Terabox link to get started!",
             reply_markup=InlineKeyboardMarkup([
                 [
-                    InlineKeyboardButton("🏠 home", callback_data='home'),
-                    InlineKeyboardButton("❌ close", callback_data='close')
+                    InlineKeyboardButton("ʜᴏᴍᴇ", callback_data='home'),
+                    InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data='close')
                 ]
             ]),
             quote=True
@@ -142,11 +139,7 @@ async def handle_callback(client, callback_query):
         reply_markup = InlineKeyboardMarkup([
             [
                 InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam"),
-                InlineKeyboardButton("about", callback_data='about')
-            ],
-            [
-                InlineKeyboardButton("🏠 home", callback_data='home'),
-                InlineKeyboardButton("❌ close", callback_data='close')
+                InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
             ]
         ])
         await callback_query.message.reply_text(reply_message, reply_markup=reply_markup, quote=True)
