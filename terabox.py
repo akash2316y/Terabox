@@ -61,7 +61,8 @@ async def start_command(client, message):
         caption=reply_message,
         reply_markup=reply_markup
     )
-    else:
+    
+else:
         await message.reply_text(reply_message, reply_markup=reply_markup)
 
 async def is_user_member(client, user_id):
