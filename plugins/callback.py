@@ -1,44 +1,48 @@
-from pyrogram import Client
-from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
-from Script import text
+from pyrogram import __version__
+from bot import Bot
+from config import OWNER_ID, START_MSG
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 
-@Client.on_callback_query()
-async def callback_query_handler(client, query: CallbackQuery):
-    if query.data == "start":
+
+
+@Bot.on_callback_query()
+async def cb_handler(client: Bot, query: CallbackQuery):
+    data = query.data
+    if data == "about":
         await query.message.edit_text(
-            text.START.format(query.from_user.mention),
-            disable_web_page_preview=True,
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton('⇆ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘs ⇆', url=f"https://telegram.me/QuickAcceptBot?startgroup=true&admin=invite_users")],
-                [InlineKeyboardButton('ᴀʙᴏᴜᴛ', callback_data='about'),
-                 InlineKeyboardButton('ʜᴇʟᴘ', callback_data='help')],
-                [InlineKeyboardButton('⇆ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ᴄʜᴀɴɴᴇʟ ⇆', url=f"https://telegram.me/QuickAcceptBot?startchannel=true&admin=invite_users")]
+            text = f"<b>𝖠𝖻𝗈𝗎𝗍...\n\n›› 𝖬𝖺𝖽𝖾 𝖿𝗈𝗋 : <a href='https://t.me/Zoroflix'>𝖹𝖮𝖱𝖮𝖥𝖫𝖨𝖷</a> \n›› 𝖮𝗐𝗇𝖾𝖽 𝖻𝗒 : <a tg://user?id={OWNER_ID}'>𝖠𝗄𝖺𝗌𝗁</a> !! </b>",
+            disable_web_page_preview = True,
+            reply_markup = InlineKeyboardMarkup([
+                [InlineKeyboardButton("ʜᴏᴍᴇ", callback_data = "home"),
+                 InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data = "close")]
             ])
-        )
+        )    
 
-    elif query.data == "help":
+    if data == "home":
         await query.message.edit_text(
-            text.HELP.format(query.from_user.mention),
-            disable_web_page_preview=True,
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton('ᴜᴩᴅᴀᴛᴇꜱ', url='https://telegram.me/Techifybots'),
-                 InlineKeyboardButton('ꜱᴜᴩᴩᴏʀᴛ', url='https://telegram.me/TechifySupport')],
-                [InlineKeyboardButton('ʙᴀᴄᴋ', callback_data="start"),
-                 InlineKeyboardButton('ᴄʟᴏꜱᴇ', callback_data="close")]
+            text = START_MSG.format(
+                first = query.from_user.first_name,
+                last = query.from_user.last_name,
+                username = None if not query.from_user.username else '@' + query.from_user.username,
+                mention = query.from_user.mention,
+                id = query.from_user.id
+            ),
+            disable_web_page_preview = True,
+            reply_markup = InlineKeyboardMarkup([
+                [InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data = "about"),
+                 InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data = "close")]
             ])
-        )
+        )  
 
-    elif query.data == "about":
-        await query.message.edit_text(
-            text.ABOUT,
-            disable_web_page_preview=True,
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton('💥 ʀᴇᴘᴏ', url='https://github.com/TechifyBots/Auto-Approve-Bot'),
-                 InlineKeyboardButton('👨‍💻 ᴏᴡɴᴇʀ', url='https://telegram.me/TechifyRahul')],
-                [InlineKeyboardButton("ʙᴀᴄᴋ", callback_data="start"),
-                 InlineKeyboardButton("ᴄʟᴏꜱᴇ", callback_data="close")]
-            ])
-        )
-
-    elif query.data == "close":
+    elif data == "close":
         await query.message.delete()
+        try:
+            await query.message.reply_to_message.delete()
+        except:
+            pass
+
+
+
+
+# Akash Developer 
+# Don't Remove Credit 🥺
