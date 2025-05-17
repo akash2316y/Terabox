@@ -124,39 +124,44 @@ async def handle_callback(client, callback_query):
     if data == "about":
         await callback_query.answer()
         await callback_query.message.edit_caption(
-    caption=(
-        "🤖 **Bot Information:**\n\n"
-        "• Developer: @yourusername\n"
-        "• Language: Python\n"
-        "• Library: Pyrogram\n"
-        "• Purpose: Download and send Terabox files easily.\n\n"
-        "✨ Just send a valid Terabox link to get started!"
-    ),
-    reply_markup=InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("ʜᴏᴍᴇ", callback_data='home'),
-            InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data='close')
-        ]
-    ])
+            caption=(
+                "🤖 **Bot Information:**\n\n"
+                "• Developer: @yourusername\n"
+                "• Language: Python\n"
+                "• Library: Pyrogram\n"
+                "• Purpose: Download and send Terabox files easily.\n\n"
+                "✨ Just send a valid Terabox link to get started!"
+            ),
+            reply_markup=InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton("ʜᴏᴍᴇ", callback_data='home'),
+                    InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data='close')
+                ]
+            ])
         )
 
     elif data == "home":
+        await callback_query.answer()
+
         user_mention = callback_query.from_user.mention
         reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
+
         reply_markup = InlineKeyboardMarkup([
             [
                 InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam"),
                 InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
             ]
         ])
-        await callback_query.message.reply_text(reply_message, reply_markup=reply_markup, quote=True)
 
-elif data == "close":
-    try:
-        await callback_query.message.delete()
-    except Exception as e:
-        logging.warning(f"Failed to delete message: {e}")
-
+        try:
+            await callback_query.message.edit_media(
+                media={"type": "photo", "media": "https://envs.sh/JP6.jpg"},
+                reply_markup=reply_markup
+            )
+            await callback_query.message.edit_caption(reply_message)
+        except Exception as e:
+            logging.warning(f"Failed to edit home screen: {e}")
+            
 # Run bot
 if __name__ == "__main__":
     keep_alive()
