@@ -151,7 +151,7 @@ async def handle_callback(client, callback_query):
         ])
         await callback_query.message.reply_text(reply_message, reply_markup=reply_markup, quote=True)
 
-    elif data == "close":
+elif data == "close":
     try:
         await callback_query.message.delete()
     except Exception as e:
