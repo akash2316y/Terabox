@@ -165,8 +165,8 @@ async def handle_callback(client, callback_query):
         except Exception as e:
             logging.warning(f"Failed to edit home screen: {e}")
 
-elif query.data == "close":
-    await query.message.delete()
+    elif query.data == "close":
+        await query.message.delete()
 
 # Run bot
 if __name__ == "__main__":
