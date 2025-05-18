@@ -12,28 +12,43 @@ from status import format_progress_bar
 from video import download_video, upload_video
 from web import keep_alive
 
-# Load environment variables
 load_dotenv('config.env', override=True)
 
 logging.basicConfig(level=logging.INFO)
 
-# Environment setup
 api_id = os.environ.get('TELEGRAM_API', '')
+if len(api_id) == 0:
+    logging.error("TELEGRAM_API variable is missing! Exiting now")
+    exit(1)
+
 api_hash = os.environ.get('TELEGRAM_HASH', '')
+if len(api_hash) == 0:
+    logging.error("TELEGRAM_HASH variable is missing! Exiting now")
+    exit(1)
+    
 bot_token = os.environ.get('BOT_TOKEN', '')
+if len(bot_token) == 0:
+    logging.error("BOT_TOKEN variable is missing! Exiting now")
+    exit(1)
 dump_id = os.environ.get('DUMP_CHAT_ID', '')
+if len(dump_id) == 0:
+    logging.error("DUMP_CHAT_ID variable is missing! Exiting now")
+    exit(1)
+else:
+    dump_id = int(dump_id)
+
 fsub_id = os.environ.get('FSUB_ID', '')
+if len(fsub_id) == 0:
+    logging.error("FSUB_ID variable is missing! Exiting now")
+    exit(1)
+else:
+    fsub_id = int(fsub_id)
+
 CHANNEL_ID = -1002008497819
 FORCE_JOIN = os.environ.get("FORCE_JOIN", "True").lower() == "true"
 
-if not api_id or not api_hash or not bot_token or not dump_id or not fsub_id:
-    logging.error("One or more environment variables are missing! Exiting.")
-    exit(1)
-
-dump_id = int(dump_id)
-fsub_id = int(fsub_id)
-
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+# Load environment variables
 
 @app.on_message(filters.command("start"))
 async def start_command(client, message):
