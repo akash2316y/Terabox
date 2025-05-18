@@ -269,34 +269,30 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
             reply_markup=reply_markup
         )
 
-        # Step 8: Cleanup
-        os.remove(file_path)
-        if thumbnail_path and os.path.exists(thumbnail_path):
-            os.remove(thumbnail_path)
+# Step 8: Cleanup
+try:
+    os.remove(file_path)
+except Exception as e:
+    logging.warning(f"Failed to delete video file: {e}")
 
-        # Clean up progress message after upload
-        try:
-            await reply_msg.delete()
-        except Exception as e:
-            logging.warning(f"Couldn't delete reply_msg after upload: {e}")
-        
-        # Delete user's original command message
-        if message:
-            try:
-                await message.delete()
-            except Exception as e:
-                logging.warning(f"Couldn't delete user message: {e}")
-
-        # Optional: Sticker after success
-        try:
-            sticker_message = await message.reply_sticker("CAACAgIAAxkBAAEZdwRmJhCNfFRnXwR_lVKU1L9F3qzbtAAC4gUAAj-VzApzZV-v3phk4DQE")
-            await asyncio.sleep(5)
-            await sticker_message.delete()
-        except Exception as e:
-            logging.warning(f"Couldn't send or delete sticker: {e}")
-
-        return collection_message.id
-
+if thumbnail_path and os.path.exists(thumbnail_path):
+    try:
+        os.remove(thumbnail_path)
     except Exception as e:
-        logging.error(f"Error during upload: {e}", exc_info=True)
-        return None
+        logging.warning(f"Failed to delete thumbnail: {e}")
+
+# Delete progress/processing message
+if reply_msg:
+    try:
+        await reply_msg.delete()
+    except Exception as e:
+        logging.warning(f"Couldn't delete reply_msg (progress message): {e}")
+
+# Delete user's original command message
+if message:
+    try:
+        await message.delete()
+    except Exception as e:
+        logging.warning(f"Couldn't delete user message: {e}")
+
+return collection_message.id
