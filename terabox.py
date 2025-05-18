@@ -82,7 +82,14 @@ async def start_command(client, message):
         caption=reply_message,
         reply_markup=InlineKeyboardMarkup(buttons)
     )
-
+    
+async def is_user_member(client, user_id):
+    try:
+        member = await client.get_chat_member(AUTH_CHANNEL, user_id)
+        return member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]
+    except Exception:
+        return False
+        
 # Callback handler for "About"
 @app.on_callback_query(filters.regex("about"))
 async def about_callback(client, callback_query: CallbackQuery):
