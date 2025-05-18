@@ -189,7 +189,6 @@ async def download_video(url, reply_msg, user_mention, user_id, max_retries=3):
         logging.error(f"Error: {e}", exc_info=True)
         return None, None, None, None
 
-
 async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg, user_mention, user_id, message):
     try:
         file_size = os.path.getsize(file_path)
@@ -197,7 +196,7 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
         start_time = datetime.now()
         last_update_time = time.time()
 
-        # Step 1: Try downloading the thumbnail from URL
+        # Step 1: Try downloading thumbnail from URL
         thumbnail_path = None
         if thumbnail_url:
             try:
@@ -206,16 +205,17 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
                 logging.warning(f"Failed to download thumbnail: {e}")
                 thumbnail_path = None
 
-        # Step 2: Fallback to generate thumbnail from the video
+        # Step 2: Fallback to generate thumbnail from video
         if not thumbnail_path:
             thumbnail_path = f"{os.path.splitext(file_path)[0]}_thumb.jpg"
             generated = generate_thumbnail(file_path, thumbnail_path)
             if not generated:
-                thumbnail_path = None  # Use no thumb if generation also fails
+                thumbnail_path = None
 
-        # Step 3: Get video duration (optional - to use in caption)
+        # Step 3: Get video duration
         video_duration = get_video_duration(file_path)
 
+        # Step 4: Upload progress callback
         async def progress(current, total):
             nonlocal uploaded, last_update_time
             uploaded = current
@@ -242,7 +242,7 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
                 except Exception as e:
                     logging.warning(f"Error updating progress message: {e}")
 
-        # Step 4: Upload video to DB channel
+        # Step 5: Upload to DB channel
         with open(file_path, 'rb') as file:
             collection_message = await client.send_video(
                 chat_id=db_channel_id,
@@ -252,34 +252,49 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
                 progress=progress
             )
 
-        # Step 5: Forward to user (copy without forward header)
+        # Step 6: Forward to user
         copied_msg = await client.copy_message(
             chat_id=message.chat.id,
             from_chat_id=db_channel_id,
             message_id=collection_message.id
         )
 
-        # Step 6: Edit with caption and buttons
+        # Step 7: Add buttons to final message (optional button)
         caption = f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
         reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton(text=button_name, url=button_link)]]) if CHNL_BTN else None
 
         await copied_msg.edit_caption(
             caption=caption,
-            parse_mode=ParseMode.HTML,
+            parse_mode="HTML",
             reply_markup=reply_markup
         )
 
-        # Step 7: Cleanup
+        # Step 8: Cleanup
         os.remove(file_path)
         if thumbnail_path and os.path.exists(thumbnail_path):
             os.remove(thumbnail_path)
 
-        await message.delete()
-        await reply_msg.delete()
+        # Delete bot's progress message
+        if reply_msg:
+            try:
+                await reply_msg.delete()
+            except Exception as e:
+                logging.warning(f"Couldn't delete reply_msg: {e}")
 
-        sticker_message = await message.reply_sticker("CAACAgIAAxkBAAEZdwRmJhCNfFRnXwR_lVKU1L9F3qzbtAAC4gUAAj-VzApzZV-v3phk4DQE")
-        await asyncio.sleep(5)
-        await sticker_message.delete()
+        # Delete user's original command message
+        if message:
+            try:
+                await message.delete()
+            except Exception as e:
+                logging.warning(f"Couldn't delete user message: {e}")
+
+        # Optional: Sticker after success
+        try:
+            sticker_message = await message.reply_sticker("CAACAgIAAxkBAAEZdwRmJhCNfFRnXwR_lVKU1L9F3qzbtAAC4gUAAj-VzApzZV-v3phk4DQE")
+            await asyncio.sleep(5)
+            await sticker_message.delete()
+        except:
+            pass
 
         return collection_message.id
 
