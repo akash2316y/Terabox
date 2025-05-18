@@ -51,16 +51,6 @@ async def start_command(client, message):
         reply_markup=reply_markup
     )
 
-# Subscription check
-async def is_user_member(client, user_id):
-    try:
-        member = await client.get_chat_member(fsub_id, user_id)
-        return member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]
-    except Exception as e:
-        logging.error(f"Error checking membership: {e}")
-        return False
-
-# Handle Terabox links
 @app.on_message(filters.text)
 async def handle_message(client, message: Message):
     if message.from_user is None:
@@ -68,8 +58,25 @@ async def handle_message(client, message: Message):
 
     user_id = message.from_user.id
     user_mention = message.from_user.mention
-    is_member = await is_user_member(client, user_id)
 
+    # 🔐 Force join check
+    if FORCE_JOIN:
+        is_member = await is_user_member(client, user_id)
+        if not is_member:
+            join_link = await client.export_chat_invite_link(fsub_id)
+            try:
+                await message.reply(
+                    f"🚫 {user_mention}, you need to join our channel to use this bot!",
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("📢 Join Channel", url=join_link)],
+                        [InlineKeyboardButton("✅ I've Joined", callback_data="refresh_fsub")]
+                    ])
+                )
+            except Exception as e:
+                logging.error(f"Force join reply error: {e}")
+            return
+
+    # ✅ Continue if user is a member
     valid_domains = [
         'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com', 
         'momerybox.com', 'teraboxapp.com', '1024tera.com', 
@@ -100,6 +107,7 @@ async def handle_message(client, message: Message):
     except Exception as e:
         logging.error(f"Download error: {e}")
         await reply_msg.edit_text("❌ API returned a broken link.")
+        
 
 # Handle button callbacks
 @app.on_callback_query()
