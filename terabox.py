@@ -22,7 +22,7 @@ api_id = os.environ.get('TELEGRAM_API', '')
 api_hash = os.environ.get('TELEGRAM_HASH', '')
 bot_token = os.environ.get('BOT_TOKEN', '')
 dump_id = os.environ.get('DUMP_CHAT_ID', '')
-fsub_id = os.environ.get('FSUB_ID', '')
+fsub_id = os.environ.get('FSUB_ID', '-1002008497819')
 
 if not api_id or not api_hash or not bot_token or not dump_id or not fsub_id:
     logging.error("One or more environment variables are missing! Exiting.")
@@ -33,21 +33,8 @@ fsub_id = int(fsub_id)
 
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-@app.on_message(filters.command("start"))
-async def start_command(client, message):
-    user_mention = message.from_user.mention
-    reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
-    
-    join_button = InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam")
-    developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
-    reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
-
-    # Reply to start message so we can later delete it too
-    await message.reply_photo(
-        photo="https://envs.sh/JP6.jpg",
-        caption=reply_message,
-        reply_markup=reply_markup
-    )
+# To store join messages sent to users so we can delete later when they join the channel
+user_join_messages = {}
 
 # Subscription check
 async def is_user_member(client, user_id):
@@ -57,6 +44,78 @@ async def is_user_member(client, user_id):
     except Exception as e:
         logging.error(f"Error checking membership: {e}")
         return False
+
+@app.on_message(filters.command("start"))
+async def start_command(client, message):
+    user_id = message.from_user.id
+    user_mention = message.from_user.mention
+    
+    is_member = await is_user_member(client, user_id)
+
+    reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
+    
+    if is_member:
+        # User already a member: send start message without join button
+        developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
+        reply_markup = InlineKeyboardMarkup([[developer_button]])
+        
+        await message.reply_photo(
+            photo="https://envs.sh/JP6.jpg",
+            caption=reply_message,
+            reply_markup=reply_markup
+        )
+    else:
+        # User not member: send join button
+        join_button = InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam")
+        developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
+        reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
+        
+        join_msg = await message.reply_photo(
+            photo="https://envs.sh/JP6.jpg",
+            caption="❌ ᴘʟᴇᴀsᴇ ᴊᴏɪɴ ᴏᴜʀ ᴄʜᴀɴɴᴇʟ ғɪʀsᴛ ᴛᴏ ᴜsᴇ ᴛʜɪs ʙᴏᴛ.",
+            reply_markup=reply_markup
+        )
+        
+        # Save the join message id to delete later when user joins
+        user_join_messages[user_id] = join_msg.message_id
+
+
+@app.on_chat_member_updated()
+async def chat_member_update(client, chat_member_updated):
+    user_id = chat_member_updated.from_user.id
+    new_status = chat_member_updated.new_chat_member.status
+    
+    # Only handle updates in the subscription channel
+    if chat_member_updated.chat.id == fsub_id:
+        # Check if user just became a member or admin or owner
+        if new_status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+            if user_id in user_join_messages:
+                try:
+                    # Delete the previous join message
+                    await client.delete_messages(chat_member_updated.chat.id, user_join_messages[user_id])
+                except Exception as e:
+                    logging.warning(f"Could not delete join message for user {user_id}: {e}")
+
+                try:
+                    # Send the start message directly to the user
+                    user_mention = f"[{chat_member_updated.from_user.first_name}](tg://user?id={user_id})"
+                    reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
+                    developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
+                    reply_markup = InlineKeyboardMarkup([[developer_button]])
+                    
+                    await client.send_photo(
+                        chat_id=user_id,
+                        photo="https://envs.sh/JP6.jpg",
+                        caption=reply_message,
+                        reply_markup=reply_markup
+                    )
+                except Exception as e:
+                    logging.warning(f"Could not send start message after join for user {user_id}: {e}")
+
+                # Remove user from dict after done
+                del user_join_messages[user_id]
+
+# The rest of your bot code remains unchanged
 
 # Handle Terabox links
 @app.on_message(filters.text)
