@@ -69,52 +69,34 @@ async def start_command(client, message):
             return
 
     # If user is subscribed, show main welcome
-    reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
-    buttons = [
-    [InlineKeyboardButton("ᴊᴏɪɴ", url=f"https://t.me/{AUTH_CHANNEL}")],
-    [InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')]
-    ]
+     reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
+    
+    join_button = InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam")
+    developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
+    reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
 
-    await message.reply_photo(
+    await client.send_photo(
+        chat_id=message.chat.id,
         photo="https://envs.sh/JP6.jpg",
         caption=reply_message,
-        reply_markup=InlineKeyboardMarkup(buttons)
+        reply_markup=reply_markup
     )
-    
+
+# Subscription check
 async def is_user_member(client, user_id):
     try:
-        member = await client.get_chat_member(AUTH_CHANNEL, user_id)
+        member = await client.get_chat_member(fsub_id, user_id)
+        logging.info(f"User {user_id} membership status: {member.status}")
         return member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]
-    except Exception:
+    except Exception as e:
+        logging.error(f"Error checking membership status for user {user_id}: {e}")
         return False
-        
-# Callback handler for "About"
-@app.on_callback_query(filters.regex("about"))
-async def about_callback(client, callback_query: CallbackQuery):
-    await callback_query.answer()  # Just to stop loading circle
-
-    about_text = (
-        "<b>🤖 Bot Name:</b> Terabox Downloader\n"
-        "<b>👨‍💻 Developer:</b> @AkashBotDev\n"
-        "<b>⚙️ Features:</b>\n"
-        "• Download from Terabox\n"
-        "• Stream via Telegram\n"
-        "• Force Join Enabled\n\n"
-        "<b>📢 Channel:</b> @lowerassam"
-    )
-    reply_markup=InlineKeyboardMarkup[InlineKeyboardButton("ʜᴏᴍᴇ", callback_data='home'),
-                                        InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data='close')]
-
-# Optional: Back to start message
-@app.on_callback_query(filters.regex("start_back"))
-async def back_to_start(client, callback_query: CallbackQuery):
-    await start_command(client, callback_query.message)
-
 
 # Handle Terabox links
 @app.on_message(filters.text)
 async def handle_message(client, message: Message):
     if message.from_user is None:
+        logging.error("Message does not contain user information.")
         return
 
     user_id = message.from_user.id
@@ -131,7 +113,7 @@ async def handle_message(client, message: Message):
     terabox_link = message.text.strip()
 
     if not any(domain in terabox_link for domain in valid_domains):
-        return
+        return  # Ignore non-Terabox messages
 
     reply_msg = await message.reply_text("𝖲𝖾𝗇𝖽𝗂𝗇𝗀 𝗒𝗈𝗎 𝗍𝗁𝖾 𝗆𝖾𝖽𝗂𝖺...🤤")
 
@@ -202,15 +184,9 @@ async def handle_callback(client, callback_query):
 
     elif data == "close":
         await callback_query.answer()
-        
+        await callback_query.message.delete()
         try:
-            await callback_query.message.delete()
-        except Exception as e:
-            logging.warning(f"Couldn't delete callback message: {e}")
-
-        try:
-            if callback_query.message.reply_to_message:
-                await callback_query.message.reply_to_message.delete()
+            await callback_query.message.reply_to_message.delete()
         except Exception as e:
             logging.warning(f"Couldn't delete reply_to_message: {e}")
 
