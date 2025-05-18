@@ -12,53 +12,26 @@ from status import format_progress_bar
 from video import download_video, upload_video
 from web import keep_alive
 
-# Load environment variables from config.env
+# Load environment variables
 load_dotenv('config.env', override=True)
 
 logging.basicConfig(level=logging.INFO)
 
-# Get variables from environment
+# Environment setup
 api_id = os.environ.get('TELEGRAM_API', '')
-if len(api_id) == 0:
-    logging.error("TELEGRAM_API variable is missing! Exiting now")
-    exit(1)
-
 api_hash = os.environ.get('TELEGRAM_HASH', '')
-if len(api_hash) == 0:
-    logging.error("TELEGRAM_HASH variable is missing! Exiting now")
-    exit(1)
-
 bot_token = os.environ.get('BOT_TOKEN', '')
-if len(bot_token) == 0:
-    logging.error("BOT_TOKEN variable is missing! Exiting now")
-    exit(1)
-
 dump_id = os.environ.get('DUMP_CHAT_ID', '')
-if len(dump_id) == 0:
-    logging.error("DUMP_CHAT_ID variable is missing! Exiting now")
-    exit(1)
-else:
-    dump_id = int(dump_id)
-
 fsub_id = os.environ.get('FSUB_ID', '')
-if len(fsub_id) == 0:
-    logging.error("FSUB_ID variable is missing! Exiting now")
+
+if not api_id or not api_hash or not bot_token or not dump_id or not fsub_id:
+    logging.error("One or more environment variables are missing! Exiting.")
     exit(1)
-else:
-    fsub_id = int(fsub_id)
 
-channel_id = os.environ.get('CHANNEL_ID', '')
-if len(channel_id) == 0:
-    logging.error("CHANNEL_ID variable is missing! Exiting now")
-    exit(1)
-else:
-    channel_id = int(channel_id)
+dump_id = int(dump_id)
+fsub_id = int(fsub_id)
 
-force_join = os.environ.get("FORCE_JOIN", "True").lower() == "true"
-
-# Initialize the bot client
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
-# Load environment variables
 
 @app.on_message(filters.command("start"))
 async def start_command(client, message):
@@ -76,6 +49,16 @@ async def start_command(client, message):
         reply_markup=reply_markup
     )
 
+# Subscription check
+async def is_user_member(client, user_id):
+    try:
+        member = await client.get_chat_member(fsub_id, user_id)
+        return member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]
+    except Exception as e:
+        logging.error(f"Error checking membership: {e}")
+        return False
+
+# Handle Terabox links
 @app.on_message(filters.text)
 async def handle_message(client, message: Message):
     if message.from_user is None:
@@ -83,25 +66,8 @@ async def handle_message(client, message: Message):
 
     user_id = message.from_user.id
     user_mention = message.from_user.mention
+    is_member = await is_user_member(client, user_id)
 
-    # 🔐 Force join check
-    if FORCE_JOIN:
-        is_member = await is_user_member(client, user_id)
-        if not is_member:
-            join_link = await client.export_chat_invite_link(fsub_id)
-            try:
-                await message.reply(
-                    f"🚫 {user_mention}, you need to join our channel to use this bot!",
-                    reply_markup=InlineKeyboardMarkup([
-                        [InlineKeyboardButton("📢 Join Channel", url=join_link)],
-                        [InlineKeyboardButton("✅ I've Joined", callback_data="refresh_fsub")]
-                    ])
-                )
-            except Exception as e:
-                logging.error(f"Force join reply error: {e}")
-            return
-
-    # ✅ Continue if user is a member
     valid_domains = [
         'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com', 
         'momerybox.com', 'teraboxapp.com', '1024tera.com', 
@@ -132,7 +98,6 @@ async def handle_message(client, message: Message):
     except Exception as e:
         logging.error(f"Download error: {e}")
         await reply_msg.edit_text("❌ API returned a broken link.")
-        
 
 # Handle button callbacks
 @app.on_callback_query()
@@ -195,14 +160,6 @@ async def handle_callback(client, callback_query):
                 await callback_query.message.reply_to_message.delete()
         except Exception as e:
             logging.warning(f"Couldn't delete reply_to_message: {e}")
-
-    elif data == "refresh_fsub":
-        is_member = await is_user_member(client, callback_query.from_user.id)
-        if is_member:
-            await callback_query.answer("✅ You have joined the channel!", show_alert=True)
-            await callback_query.message.delete()
-        else:
-            await callback_query.answer("🚫 You still need to join the channel.", show_alert=True)
 
 # Run bot
 if __name__ == "__main__":
