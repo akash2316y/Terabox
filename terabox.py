@@ -1,13 +1,15 @@
-from pyrogram.types import InputMediaPhoto
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from pyrogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    InputMediaPhoto,
+    Message
+)
 import logging
-import asyncio
-from datetime import datetime
-from pyrogram.enums import ChatMemberStatus
-from dotenv import load_dotenv
 import os
-import time
+from dotenv import load_dotenv
+from pyrogram.enums import ChatMemberStatus
+
 from status import format_progress_bar
 from video import download_video, upload_video
 from web import keep_alive
@@ -33,22 +35,6 @@ fsub_id = int(fsub_id)
 
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-@app.on_message(filters.command("start"))
-async def start_command(client, message):
-    user_mention = message.from_user.mention
-    reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
-    
-    join_button = InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam")
-    developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
-    reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
-
-    # Reply to start message so we can later delete it too
-    await message.reply_photo(
-        photo="https://envs.sh/JP6.jpg",
-        caption=reply_message,
-        reply_markup=reply_markup
-    )
-
 # Subscription check
 async def is_user_member(client, user_id):
     try:
@@ -58,7 +44,21 @@ async def is_user_member(client, user_id):
         logging.error(f"Error checking membership: {e}")
         return False
 
-# Handle Terabox links
+@app.on_message(filters.command("start"))
+async def start_command(client, message):
+    user_mention = message.from_user.mention
+    reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
+
+    join_button = InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam")
+    developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
+    reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
+
+    await message.reply_photo(
+        photo="https://envs.sh/JP6.jpg",
+        caption=reply_message,
+        reply_markup=reply_markup
+    )
+
 @app.on_message(filters.text)
 async def handle_message(client, message: Message):
     if message.from_user is None:
@@ -66,12 +66,41 @@ async def handle_message(client, message: Message):
 
     user_id = message.from_user.id
     user_mention = message.from_user.mention
+
     is_member = await is_user_member(client, user_id)
+    if not is_member:
+        join_markup = InlineKeyboardMarkup([
+            [InlineKeyboardButton("📢 Join Channel", url="https://t.me/lowerassam")],
+            [InlineKeyboardButton("✅ I've Joined", callback_data="refresh_check")]
+        ])
+        await message.reply_text(
+            "**🔒 Please join the channel to use this bot.**",
+            reply_markup=join_markup
+        )
+        return
+
+    # ✅ Welcome message shown here
+    welcome_message = (
+        f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n"
+        "𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. "
+        "𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄, 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗂𝗍 𝖿𝗈𝗋 𝗒𝗈𝗎 ✨."
+    )
+
+    welcome_markup = InlineKeyboardMarkup([
+        [InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam")],
+        [InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')]
+    ])
+
+    await message.reply_photo(
+        photo="https://envs.sh/JP6.jpg",
+        caption=welcome_message,
+        reply_markup=welcome_markup
+    )
 
     valid_domains = [
-        'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com', 
-        'momerybox.com', 'teraboxapp.com', '1024tera.com', 
-        'terabox.app', 'gibibox.com', 'goaibox.com', 
+        'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com',
+        'momerybox.com', 'teraboxapp.com', '1024tera.com',
+        'terabox.app', 'gibibox.com', 'goaibox.com',
         'terasharelink.com', 'teraboxlink.com', 'terafileshare.com'
     ]
 
@@ -99,7 +128,6 @@ async def handle_message(client, message: Message):
         logging.error(f"Download error: {e}")
         await reply_msg.edit_text("❌ API returned a broken link.")
 
-# Handle button callbacks
 @app.on_callback_query()
 async def handle_callback(client, callback_query):
     data = callback_query.data
@@ -127,7 +155,7 @@ async def handle_callback(client, callback_query):
         await callback_query.answer()
 
         user_mention = callback_query.from_user.mention
-        reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
+        reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍..."
 
         reply_markup = InlineKeyboardMarkup([
             [
@@ -149,7 +177,6 @@ async def handle_callback(client, callback_query):
 
     elif data == "close":
         await callback_query.answer()
-        
         try:
             await callback_query.message.delete()
         except Exception as e:
@@ -165,4 +192,3 @@ async def handle_callback(client, callback_query):
 if __name__ == "__main__":
     keep_alive()
     app.run()
-    
