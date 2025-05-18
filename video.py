@@ -263,14 +263,26 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
         )
 
         # Step 7: Add buttons to final message (optional button)
-        caption = f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
-        reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton(text=CHANNEL_NAME, url=CHANNEL_URL)]]) if CHNL_BTN else None
+caption = (
+    f"✨ {video_title}\n"
+    f"⏱ Duration: {video_duration} sec\n"
+    f"👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n"
+    f"📥 <b>ʙʏ @Javpostr </b>"
+)
 
-        await copied_msg.edit_caption(
-            caption=caption,
-            parse_mode="HTML",
-            reply_markup=reply_markup
-        )
+# Safe तरीके से reply_markup बनाएँ
+reply_markup = None
+if CHNL_BTN and CHANNEL_NAME and CHANNEL_URL:
+    reply_markup = InlineKeyboardMarkup(
+        [[InlineKeyboardButton(text=CHANNEL_NAME, url=CHANNEL_URL)]]
+    )
+
+# अब final edit_caption call करें
+await copied_msg.edit_caption(
+    caption=caption,
+    parse_mode="HTML",
+    reply_markup=reply_markup
+)
 
         # Step 8: Cleanup
         try:
