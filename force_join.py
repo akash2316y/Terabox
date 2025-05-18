@@ -1,8 +1,10 @@
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
 from pyrogram.errors import UserNotParticipant
-from config import CHANNEL_ID, FORCE_JOIN
+import os
 
+CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
+FORCE_JOIN = os.getenv("FORCE_JOIN", "False").lower() == "true"
 
 # ✅ Check if user is a member of the channel
 async def check_user_in_channel(client: Client, user_id: int) -> bool:
