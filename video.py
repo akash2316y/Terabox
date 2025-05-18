@@ -269,30 +269,34 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
             reply_markup=reply_markup
         )
 
-# Step 8: Cleanup
-try:
-    os.remove(file_path)
-except Exception as e:
-    logging.warning(f"Failed to delete video file: {e}")
+        # Step 8: Cleanup
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            logging.warning(f"Failed to delete video file: {e}")
 
-if thumbnail_path and os.path.exists(thumbnail_path):
-    try:
-        os.remove(thumbnail_path)
+        if thumbnail_path and os.path.exists(thumbnail_path):
+            try:
+                os.remove(thumbnail_path)
+            except Exception as e:
+                logging.warning(f"Failed to delete thumbnail: {e}")
+
+        # Delete progress/processing message
+        if reply_msg:
+            try:
+                await reply_msg.delete()
+            except Exception as e:
+                logging.warning(f"Couldn't delete reply_msg (progress message): {e}")
+
+        # Delete user's original command message
+        if message:
+            try:
+                await message.delete()
+            except Exception as e:
+                logging.warning(f"Couldn't delete user message: {e}")
+
+        return collection_message.id
+
     except Exception as e:
-        logging.warning(f"Failed to delete thumbnail: {e}")
-
-# Delete progress/processing message
-if reply_msg:
-    try:
-        await reply_msg.delete()
-    except Exception as e:
-        logging.warning(f"Couldn't delete reply_msg (progress message): {e}")
-
-# Delete user's original command message
-if message:
-    try:
-        await message.delete()
-    except Exception as e:
-        logging.warning(f"Couldn't delete user message: {e}")
-
-return collection_message.id
+        logging.error(f"Upload failed: {e}", exc_info=True)
+        return None
