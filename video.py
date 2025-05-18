@@ -274,13 +274,12 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
         if thumbnail_path and os.path.exists(thumbnail_path):
             os.remove(thumbnail_path)
 
-        # Delete bot's progress message
-        if reply_msg:
-            try:
-                await reply_msg.delete()
-            except Exception as e:
-                logging.warning(f"Couldn't delete reply_msg: {e}")
-
+        # Clean up progress message after download
+try:
+    await reply_msg.delete()
+except Exception as e:
+    logging.warning(f"Couldn't delete reply_msg after download: {e}")
+    
         # Delete user's original command message
         if message:
             try:
