@@ -33,11 +33,6 @@ fsub_id = int(fsub_id)
 
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from pyrogram.enums import ChatMemberStatus
-import logging
-
 AUTH_CHANNEL = "AkashServers"  # Channel username without @
 
 @app.on_message(filters.command("start"))
@@ -69,18 +64,18 @@ async def start_command(client, message):
             return
 
     # If user is subscribed, show main welcome
-reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
+    reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
 
-join_button = InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam")
-developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
-reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
+    join_button = InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam")
+    developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
+    reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
 
-await client.send_photo(
-    chat_id=message.chat.id,
-    photo="https://envs.sh/JP6.jpg",
-    caption=reply_message,
-    reply_markup=reply_markup
-)
+    await client.send_photo(
+        chat_id=message.chat.id,
+        photo="https://envs.sh/JP6.jpg",
+        caption=reply_message,
+        reply_markup=reply_markup
+    )
 
 # Subscription check
 async def is_user_member(client, user_id):
