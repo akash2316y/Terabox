@@ -274,12 +274,12 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
         if thumbnail_path and os.path.exists(thumbnail_path):
             os.remove(thumbnail_path)
 
-        # Clean up progress message after download
-try:
-    await reply_msg.delete()
-except Exception as e:
-    logging.warning(f"Couldn't delete reply_msg after download: {e}")
-    
+        # Clean up progress message after upload
+        try:
+            await reply_msg.delete()
+        except Exception as e:
+            logging.warning(f"Couldn't delete reply_msg after upload: {e}")
+        
         # Delete user's original command message
         if message:
             try:
@@ -292,8 +292,8 @@ except Exception as e:
             sticker_message = await message.reply_sticker("CAACAgIAAxkBAAEZdwRmJhCNfFRnXwR_lVKU1L9F3qzbtAAC4gUAAj-VzApzZV-v3phk4DQE")
             await asyncio.sleep(5)
             await sticker_message.delete()
-        except:
-            pass
+        except Exception as e:
+            logging.warning(f"Couldn't send or delete sticker: {e}")
 
         return collection_message.id
 
