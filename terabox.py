@@ -33,30 +33,84 @@ fsub_id = int(fsub_id)
 
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pyrogram.enums import ChatMemberStatus
+import logging
+
+AUTH_CHANNEL = "AkashServers"  # Channel username without @
+
 @app.on_message(filters.command("start"))
 async def start_command(client, message):
     user_mention = message.from_user.mention
-    reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
-    
-    join_button = InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam")
-    developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
-    reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
+    user_id = message.from_user.id
 
-    # Reply to start message so we can later delete it too
+    # Force Join Check
+    if AUTH_CHANNEL:
+        try:
+            member = await client.get_chat_member(AUTH_CHANNEL, user_id)
+            if member.status not in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+                raise Exception("User not a member")
+        except Exception as e:
+            username = (await client.get_me()).username
+            start_param = message.command[1] if len(message.command) > 1 else "true"
+            join_url = f"https://t.me/{AUTH_CHANNEL}"
+            retry_url = f"https://t.me/{username}?start={start_param}"
+            
+            buttons = [
+                [InlineKeyboardButton("✅ Join Channel", url=join_url)],
+                [InlineKeyboardButton("♻️ Try Again", url=retry_url)]
+            ]
+
+            await message.reply_text(
+                f"<b>👋 Hello {user_mention},\n\nPlease join our channel to use this bot, then click Try Again.</b>",
+                reply_markup=InlineKeyboardMarkup(buttons)
+            )
+            return
+
+    # If user is subscribed, show main welcome
+    reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
+
+    buttons = [
+        [InlineKeyboardButton("ᴊᴏɪɴ", url=f"https://t.me/{AUTH_CHANNEL}")],
+        [InlineKeyboardButton("ᴜᴘʟᴏᴀᴅ ᴄʜᴀɴɴᴇʟ", url="https://t.me/YourUploadChannel")],  # Replace with your real channel
+        [InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')]
+    ]
+
     await message.reply_photo(
         photo="https://envs.sh/JP6.jpg",
         caption=reply_message,
-        reply_markup=reply_markup
+        reply_markup=InlineKeyboardMarkup(buttons)
     )
 
-# Subscription check
-async def is_user_member(client, user_id):
-    try:
-        member = await client.get_chat_member(fsub_id, user_id)
-        return member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]
-    except Exception as e:
-        logging.error(f"Error checking membership: {e}")
-        return False
+# Callback handler for "About"
+@app.on_callback_query(filters.regex("about"))
+async def about_callback(client, callback_query: CallbackQuery):
+    await callback_query.answer()  # Just to stop loading circle
+
+    about_text = (
+        "<b>🤖 Bot Name:</b> Terabox Downloader\n"
+        "<b>👨‍💻 Developer:</b> @AkashBotDev\n"
+        "<b>⚙️ Features:</b>\n"
+        "• Download from Terabox\n"
+        "• Stream via Telegram\n"
+        "• Force Join Enabled\n\n"
+        "<b>📢 Channel:</b> @lowerassam"
+    )
+
+    await callback_query.message.edit_text(
+        text=about_text,
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔙 Back", callback_data="start_back")]
+        ]),
+        disable_web_page_preview=True
+    )
+
+# Optional: Back to start message
+@app.on_callback_query(filters.regex("start_back"))
+async def back_to_start(client, callback_query: CallbackQuery):
+    await start_command(client, callback_query.message)
+
 
 # Handle Terabox links
 @app.on_message(filters.text)
