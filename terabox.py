@@ -72,8 +72,7 @@ async def start_command(client, message):
     reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
 
     buttons = [
-        [InlineKeyboardButton("ᴊᴏɪɴ", url=f"https://t.me/{AUTH_CHANNEL}")],
-        [InlineKeyboardButton("ᴜᴘʟᴏᴀᴅ ᴄʜᴀɴɴᴇʟ", url="https://t.me/YourUploadChannel")],  # Replace with your real channel
+        [InlineKeyboardButton("ᴊᴏɪɴ", url=f"https://t.me/{AUTH_CHANNEL}"),
         [InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')]
     ]
 
@@ -104,13 +103,8 @@ async def about_callback(client, callback_query: CallbackQuery):
         "• Force Join Enabled\n\n"
         "<b>📢 Channel:</b> @lowerassam"
     )
-
-    await callback_query.message.edit_text(
-        text=about_text,
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔙 Back", callback_data="start_back")]
-        ]),
-        disable_web_page_preview=True
+    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("ʜᴏᴍᴇ", callback_data='home'),
+                    InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data='close')])
     )
 
 # Optional: Back to start message
