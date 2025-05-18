@@ -70,10 +70,9 @@ async def start_command(client, message):
 
     # If user is subscribed, show main welcome
     reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
-
     buttons = [
-        [InlineKeyboardButton("ᴊᴏɪɴ", url=f"https://t.me/{AUTH_CHANNEL}"),
-        [InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')]
+    [InlineKeyboardButton("ᴊᴏɪɴ", url=f"https://t.me/{AUTH_CHANNEL}")],
+    [InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')]
     ]
 
     await message.reply_photo(
