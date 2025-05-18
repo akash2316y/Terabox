@@ -1,8 +1,10 @@
-#All Variables Are Required
+import os
+
+CHANNEL_ID = int(os.environ.get("-1002008497819"))
+FORCE_JOIN = os.environ.get("FORCE_JOIN", "true").lower() == "true"
 BOT_TOKEN = "7859871122:AAGEtAxCh8Mw8OrIT3z8kCO3WWw8YD1cS-U"
 TELEGRAM_API = "7721764"
 TELEGRAM_HASH = "a9c08aae19aa4c8b37ff658d1951a1f7"
 DUMP_CHAT_ID = -1002460543591
 OWNER_ID = 6987158459
 FORCE_JOIN = True
-CHANNEL_ID = "-1002008497819"
