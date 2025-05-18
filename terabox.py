@@ -23,8 +23,8 @@ api_hash = os.environ.get('TELEGRAM_HASH', '')
 bot_token = os.environ.get('BOT_TOKEN', '')
 dump_id = os.environ.get('DUMP_CHAT_ID', '')
 fsub_id = os.environ.get('FSUB_ID', '-1002008497819')
-FORCE_JOIN = True
-CHANNEL_ID = "-1002008497819"
+CHANNEL_ID = int(os.environ.get("-1002008497819"))
+FORCE_JOIN = os.environ.get("FORCE_JOIN", "True").lower() == "true"
 
 if not api_id or not api_hash or not bot_token or not dump_id or not fsub_id:
     logging.error("One or more environment variables are missing! Exiting.")
