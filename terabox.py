@@ -12,11 +12,6 @@ from status import format_progress_bar
 from video import download_video, upload_video
 from web import keep_alive
 
-from pyrogram import Client
-from dotenv import load_dotenv
-import os
-import logging
-
 # Load environment variables from config.env
 load_dotenv('config.env', override=True)
 
