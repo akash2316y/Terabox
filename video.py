@@ -248,8 +248,7 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
                 except Exception as e:
                     logging.warning(f"Error updating or deleting progress message: {e}")
 
-        except Exception as e:
-            logging.warning(f"Error updating or deleting progress message: {e}")
+            
         # Step 4: Upload video to DB channel
         with open(file_path, 'rb') as file:
             collection_message = await client.send_video(
