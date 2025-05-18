@@ -217,33 +217,36 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
         video_duration = get_video_duration(file_path)
 
         async def progress(current, total):
-    nonlocal uploaded, last_update_time
-    uploaded = current
-    percentage = (current / total) * 100
-    elapsed_time_seconds = (datetime.now() - start_time).total_seconds()
+            nonlocal uploaded, last_update_time
+            uploaded = current
+            percentage = (current / total) * 100
+            elapsed_time_seconds = (datetime.now() - start_time).total_seconds()
 
-    if time.time() - last_update_time > 2:
-        progress_text = format_progress_bar(
-            filename=video_title,
-            percentage=percentage,
-            done=current,
-            total_size=total,
-            status="Uploading",
-            eta=(total - current) / (current / elapsed_time_seconds) if current > 0 else 0,
-            speed=current / elapsed_time_seconds if current > 0 else 0,
-            elapsed=elapsed_time_seconds,
-            user_mention=user_mention,
-            user_id=user_id,
-            aria2p_gid=""
-        )
-        try:
-            await reply_msg.edit_text(progress_text)
-            last_update_time = time.time()
+            if time.time() - last_update_time > 2:
+                progress_text = format_progress_bar(
+                    filename=video_title,
+                    percentage=percentage,
+                    done=current,
+                    total_size=total,
+                    status="Uploading",
+                    eta=(total - current) / (current / elapsed_time_seconds) if current > 0 else 0,
+                    speed=current / elapsed_time_seconds if current > 0 else 0,
+                    elapsed=elapsed_time_seconds,
+                    user_mention=user_mention,
+                    user_id=user_id,
+                    aria2p_gid=""
+                )
+                try:
+                    await reply_msg.edit_text(progress_text)
+                    last_update_time = time.time()
 
-            # Auto delete when upload reaches 100%
-            if percentage >= 100:
-                await asyncio.sleep(1)  # optional short delay
-                await reply_msg.delete()
+                    # Auto delete when upload reaches 100%
+                    if percentage >= 100:
+                        await asyncio.sleep(1)  # optional short delay
+                        await reply_msg.delete()
+
+                except Exception as e:
+                    logging.warning(f"Error updating or deleting progress message: {e}")
 
         except Exception as e:
             logging.warning(f"Error updating or deleting progress message: {e}")
