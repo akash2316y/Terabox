@@ -62,6 +62,9 @@ TERABOX_API_URL = "https://terabox.web.id"
 TERABOX_API_TOKEN = "akash_8110231942"
 THUMBNAIL = "https://envs.sh/JP6.jpg"
 db_channel_id = -1002536904769
+CHNL_BTN = True
+CHANNEL_NAME = "Join Channel"
+CHANNEL_URL = "https://t.me/zoroflix"
 
 downloads_manager = {}
 
