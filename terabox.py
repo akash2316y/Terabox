@@ -103,7 +103,7 @@ async def about_callback(client, callback_query: CallbackQuery):
         "<b>📢 Channel:</b> @lowerassam"
     )
     reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("ʜᴏᴍᴇ", callback_data='home'),
-                 InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data='close')])
+                                        InlineKeyboardButton("ᴄʟᴏsᴇ", callback_data='close')]
 
 # Optional: Back to start message
 @app.on_callback_query(filters.regex("start_back"))
