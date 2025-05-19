@@ -58,7 +58,7 @@ async def start_command(client, message):
             ]
 
             await message.reply_text(
-                f"<b>👋 𝖧𝖾𝗅𝗅𝗈 {user_mention},\n\n𝖯𝗅𝖾𝖺𝗌𝖾 𝗃𝗈𝗂𝗇 𝗈𝗎𝗋 𝖼𝗁𝖺𝗇𝗇𝖾𝗅 𝗍𝗈 𝗎𝗌𝖾 𝗍𝗁𝗂𝗌 𝖻𝗈𝗍,\n𝗍𝗁𝖾𝗇 𝖢𝗅𝗂𝖼𝗄 𝖳𝗋𝗒 𝖠𝗀𝖺𝗂𝗇.</b>",
+                f"<b>👋 𝖧𝖾𝗅𝗅𝗈 {user_mention},\n\n𝖯𝗅𝖾𝖺𝗌𝖾 𝗃𝗈𝗂𝗇 𝗈𝗎𝗋 𝖼𝗁𝖺𝗇𝗇𝖾𝗅 𝗍𝗈 𝗎𝗌𝖾 𝗍𝗁𝗂𝗌 𝖻𝗈𝗍,\n𝗍𝗁𝖾𝗇 𝖢𝗅𝗂𝖼𝗄 𝖩𝗈𝗂𝗇𝖾𝖽.</b>",
                 reply_markup=InlineKeyboardMarkup(buttons)
             )
             return
@@ -161,7 +161,7 @@ async def handle_callback(client, callback_query):
 
         reply_markup = InlineKeyboardMarkup([
             [
-                InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam"),
+                InlineKeyboardButton("ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ", url="https://t.me/AkashServers"),
                 InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
             ]
         ])
