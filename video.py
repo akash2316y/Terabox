@@ -206,7 +206,6 @@ async def download_video(url, reply_msg, user_mention, user_id, max_retries=3):
         logging.error(f"Error: {e}", exc_info=True)
         return None, None, None, None
 
-
 async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg, user_mention, user_id, message):
     try:
         file_size = os.path.getsize(file_path)
@@ -228,9 +227,8 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
             thumbnail_path = f"{os.path.splitext(file_path)[0]}_thumb.jpg"
             generated = generate_thumbnail(file_path, thumbnail_path)
             if not generated:
-                thumbnail_path = None  # Use no thumb if generation also fails
+                thumbnail_path = None
 
-        # Step 3: Get video duration (optional - to use in caption)
         video_duration = get_video_duration(file_path)
 
         async def progress(current, total):
@@ -256,17 +254,10 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
                 try:
                     await reply_msg.edit_text(progress_text)
                     last_update_time = time.time()
-
-                    # Auto delete when upload reaches 100%
-                    if percentage >= 100:
-                        await asyncio.sleep(1)  # optional short delay
-                        await reply_msg.delete()
-
                 except Exception as e:
-                    logging.warning(f"Error updating or deleting progress message: {e}")
+                    logging.warning(f"Error updating progress message: {e}")
 
-            
-        # Step 4: Upload video to DB channel
+        # Step 3: Upload video to DB channel
         with open(file_path, 'rb') as file:
             collection_message = await client.send_video(
                 chat_id=db_channel_id,
@@ -276,31 +267,41 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
                 progress=progress
             )
 
-        # Step 5: Forward to user (copy without forward header)
+        # Step 4: Copy to user
         copied_msg = await client.copy_message(
             chat_id=message.chat.id,
             from_chat_id=db_channel_id,
             message_id=collection_message.id
         )
 
-        # Step 6: Edit with caption and buttons
         caption = f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
-        
+
         await copied_msg.edit_caption(
             caption=caption,
-            parse_mode=ParseMode.HTML,
-            reply_markup=reply_markup
+            parse_mode="HTML",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("Share", url="https://t.me/share/url?url=https://t.me/Javpostr")]
+            ])
         )
 
-        # Step 7: Cleanup
-        os.remove(file_path)
-        if thumbnail_path and os.path.exists(thumbnail_path):
-            os.remove(thumbnail_path)
+        # Step 5: Cleanup
+        try:
+            os.remove(file_path)
+            if thumbnail_path and os.path.exists(thumbnail_path):
+                os.remove(thumbnail_path)
+        except Exception as e:
+            logging.warning(f"Error during file cleanup: {e}")
 
-        await message.delete()
-        await reply_msg.delete()
+        try:
+            await message.delete()
+        except Exception as e:
+            logging.warning(f"Failed to delete user message: {e}")
 
-        sticker_message = await message.reply_sticker("CAACAgIAAxkBAAEZdwRmJhCNfFRnXwR_lVKU1L9F3qzbtAAC4gUAAj-VzApzZV-v3phk4DQE")
+        try:
+            await reply_msg.delete()
+        except Exception as e:
+            logging.warning(f"Failed to delete reply/progress message: {e}")
+
         await asyncio.sleep(5)
         await sticker_message.delete()
 
@@ -309,8 +310,6 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
     except Exception as e:
         logging.error(f"Error during upload: {e}", exc_info=True)
         return None
-
-
 
 def get_video_duration(file_path):
     try:
