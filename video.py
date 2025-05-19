@@ -268,6 +268,7 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
             )
 
 # Step 4: Copy to user
+# Step 4: Copy to user
 try:
     copied_msg = await client.copy_message(
         chat_id=message.chat.id,
@@ -284,7 +285,6 @@ try:
 
 except Exception as e:
     print(f"Step 4 Error: {e}")
-    await message.reply("Video bhejne me dikkat aayi. Please baad me try karo.")
     
         # Step 5: Cleanup
         try:
