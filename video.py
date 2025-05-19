@@ -1,24 +1,25 @@
-import requests
-from dotenv import load_dotenv
-import aria2p
-from datetime import datetime
-import aiohttp
-import os, time
-import logging
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import os
-import aiohttp
-import aiofiles
-import aria2p
+import time
 import random
 import asyncio
 import logging
 import requests
-import time
-from datetime import datetime
+import aiohttp
+import aiofiles
 import subprocess
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+from datetime import datetime
+from dotenv import load_dotenv
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from moviepy.editor import VideoFileClip
+import aria2p
+
+# Load environment variables
+load_dotenv("config.env")   # <<< Add it here
+
+# Now read your variables
+CHNL_BTN = os.getenv("CHNL_BTN", "False").lower() == "true"
+AUTH_CHANNEL = os.getenv("AUTH_CHANNEL", "AkashServers")
 
 def generate_thumbnail(video_path: str, output_path: str, time_position: int = 10) -> str:
     try:
