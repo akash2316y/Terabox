@@ -275,15 +275,16 @@ try:
         message_id=collection_message.id
     )
 
-caption = f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
+    caption = f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
 
-await copied_msg.edit_caption(
-    caption=caption,
-    parse_mode="HTML"
-)
+    await copied_msg.edit_caption(
+        caption=caption,
+        parse_mode="HTML"
+    )
+
 except Exception as e:
     print(f"Error while copying or editing message: {e}")
-
+    
         # Step 5: Cleanup
         try:
             os.remove(file_path)
