@@ -1,4 +1,5 @@
 import requests
+from config import CHNL_BTN, AUTH_CHANNEL
 import aria2p
 from datetime import datetime
 import aiohttp
