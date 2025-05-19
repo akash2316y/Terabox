@@ -268,21 +268,18 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
             )
 
         # Step 4: Copy to user
-        copied_msg = await client.copy_message(
-            chat_id=message.chat.id,
-            from_chat_id=db_channel_id,
-            message_id=collection_message.id
-        )
+copied_msg = await client.copy_message(
+    chat_id=message.chat.id,
+    from_chat_id=db_channel_id,
+    message_id=collection_message.id
+)
 
-        caption = f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
+caption = f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
 
-        await copied_msg.edit_caption(
-            caption=caption,
-            parse_mode="HTML",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("Share", url="https://t.me/share/url?url=https://t.me/Javpostr")]
-            ])
-        )
+await copied_msg.edit_caption(
+    caption=caption,
+    parse_mode="HTML"
+)
 
         # Step 5: Cleanup
         try:
