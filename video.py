@@ -11,6 +11,7 @@ import subprocess
 from datetime import datetime
 from dotenv import load_dotenv
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 from moviepy.editor import VideoFileClip
 import aria2p
 
