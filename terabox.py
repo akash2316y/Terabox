@@ -8,7 +8,6 @@ from pyrogram.enums import ChatMemberStatus
 from dotenv import load_dotenv
 import os
 import time
-from status import format_progress_bar
 from video import download_video, upload_video
 from web import keep_alive
 
