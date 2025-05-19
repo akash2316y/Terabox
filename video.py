@@ -229,6 +229,8 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
             if not generated:
                 thumbnail_path = None
 
+
+        # Step 3: Get video duration (optional - to use in caption)
         video_duration = get_video_duration(file_path)
 
         async def progress(current, total):
@@ -257,7 +259,7 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
                 except Exception as e:
                     logging.warning(f"Error updating progress message: {e}")
 
-        # Step 3: Upload video to DB channel
+        # Step 4: Upload video to DB channel
         with open(file_path, 'rb') as file:
             collection_message = await client.send_video(
                 chat_id=db_channel_id,
@@ -267,20 +269,22 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
                 progress=progress
             )
 
-# Step 4: Copy to user
-caption = f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
+        # Step 5: Forward to user (copy without forward header)
+        copied_msg = await client.copy_message(
+            chat_id=message.chat.id,
+            from_chat_id=db_channel_id,
+            message_id=collection_message.id
+        )
 
-buttons = []
-if CHNL_BTN:
-    buttons.append([InlineKeyboardButton("ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ", url=f"https://t.me/{AUTH_CHANNEL}")])
+        # Step 6: Edit with caption and buttons
+        caption = f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
+        reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton(text=button_name, url=button_link)]]) if CHNL_BTN else None
 
-reply_markup = InlineKeyboardMarkup(buttons) if buttons else None
-
-await copied_msg.edit_caption(
-    caption=caption,
-    parse_mode=ParseMode.HTML,
-    reply_markup=reply_markup
-)
+        await copied_msg.edit_caption(
+            caption=caption,
+            parse_mode=ParseMode.HTML,
+            reply_markup=reply_markup
+        )
     
         # Step 5: Cleanup
         try:
@@ -294,11 +298,6 @@ await copied_msg.edit_caption(
             await message.delete()
         except Exception as e:
             logging.warning(f"Failed to delete user message: {e}")
-
-        try:
-            await reply_msg.delete()
-        except Exception as e:
-            logging.warning(f"Failed to delete reply/progress message: {e}")
 
         await asyncio.sleep(5)
 
