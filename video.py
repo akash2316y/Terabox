@@ -278,7 +278,7 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
 
         # Step 6: Edit with caption and buttons
         caption = f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
-        reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton(text=button_name, url=button_link)]]) if CHNL_BTN else None
+        reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ", url=f"https://t.me/{AUTH_CHANNEL})]]) if CHNL_BTN else None
 
         await copied_msg.edit_caption(
             caption=caption,
