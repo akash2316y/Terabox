@@ -36,23 +36,42 @@ def generate_thumbnail(video_path: str, output_path: str, time_position: int = 1
         logging.warning(f"Thumbnail generation failed: {e}")
         return None
 
-def get_video_duration(file_path: str) -> int:
-    try:
-        result = subprocess.run(
-            [
-                "ffprobe", "-v", "error", "-select_streams", "v:0",
-                "-show_entries", "format=duration",
-                "-of", "default=noprint_wrappers=1:nokey=1",
-                file_path
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
-        return int(float(result.stdout.strip()))
-    except Exception as e:
-        logging.warning(f"Failed to get duration: {e}")
-        return 0
+def format_progress_bar(filename, percentage, done, total_size, status, eta, speed, elapsed, user_mention, user_id, aria2p_gid):
+    bar_length = 10
+    filled_length = int(bar_length * percentage / 100)
+    bar = '★' * filled_length + '☆' * (bar_length - filled_length)
+
+    def format_size(size):
+        size = int(size)
+        if size < 1024:
+            return f"{size} B"
+        elif size < 1024 ** 2:
+            return f"{size / 1024:.2f} KB"
+        elif size < 1024 ** 3:
+            return f"{size / 1024 ** 2:.2f} MB"
+        else:
+            return f"{size / 1024 ** 3:.2f} GB"
+
+    def format_time(seconds):
+        seconds = int(seconds)
+        if seconds < 60:
+            return f"{seconds} sec"
+        elif seconds < 3600:
+            return f"{seconds // 60} min"
+        else:
+            hours = seconds // 3600
+            minutes = (seconds % 3600) // 60
+            return f"{hours} hr {minutes} min"
+
+    return (
+        f"┏ ғɪʟᴇɴᴀᴍᴇ: {filename}\n"
+        f"┠ [{bar}] {percentage:.2f}%\n"
+        f"┠ ᴘʀᴏᴄᴇssᴇᴅ: {format_size(done)} ᴏғ {format_size(total_size)}\n"
+        f"┠ sᴛᴀᴛᴜs: {status}\n"
+        f"┠ sᴘᴇᴇᴅ: {format_size(speed)}/s\n"
+        f"┠ ᴇᴛᴀ: {format_time(eta)} | ᴇʟᴀᴘsᴇᴅ: {format_time(elapsed)}\n"
+        f"┖ ᴜsᴇʀ: {user_mention} | ɪᴅ: {user_id}"
+    )
 
 
 # Terabox API Details
