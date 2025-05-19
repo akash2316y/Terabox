@@ -281,11 +281,6 @@ await copied_msg.edit_caption(
     parse_mode=ParseMode.HTML,
     reply_markup=reply_markup
 )
-        await copied_msg.edit_caption(
-            caption=caption,
-            parse_mode=ParseMode.HTML,
-            reply_markup=reply_markup
-        )
     
         # Step 5: Cleanup
         try:
