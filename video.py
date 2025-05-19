@@ -281,6 +281,8 @@ await copied_msg.edit_caption(
     caption=caption,
     parse_mode="HTML"
 )
+except Exception as e:
+    print(f"Error while copying or editing message: {e}")
 
         # Step 5: Cleanup
         try:
