@@ -303,7 +303,6 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
             logging.warning(f"Failed to delete reply/progress message: {e}")
 
         await asyncio.sleep(5)
-        await sticker_message.delete()
 
         return collection_message.id
 
