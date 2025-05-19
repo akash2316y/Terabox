@@ -17,6 +17,7 @@ import time
 from datetime import datetime
 import subprocess
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from moviepy.editor import VideoFileClip
 
 def generate_thumbnail(video_path: str, output_path: str, time_position: int = 10) -> str:
     try:
@@ -308,3 +309,15 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
     except Exception as e:
         logging.error(f"Error during upload: {e}", exc_info=True)
         return None
+
+
+
+def get_video_duration(file_path):
+    try:
+        clip = VideoFileClip(file_path)
+        duration = int(clip.duration)  # seconds mein
+        clip.close()
+        return duration
+    except Exception as e:
+        logging.warning(f"Error getting video duration: {e}")
+        return 0
