@@ -53,20 +53,20 @@ async def start_command(client, message):
             retry_url = f"https://t.me/{username}?start={start_param}"
             
             buttons = [
-                [InlineKeyboardButton("✅ Join Channel", url=join_url)],
-                [InlineKeyboardButton("♻️ Try Again", url=retry_url)]
+                [InlineKeyboardButton("ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ", url=join_url)],
+                [InlineKeyboardButton("ᴊᴏɪɴᴇᴅ", url=retry_url)]
             ]
 
             await message.reply_text(
-                f"<b>👋 Hello {user_mention},\n\nPlease join our channel to use this bot, then click Try Again.</b>",
+                f"<b>👋 𝖧𝖾𝗅𝗅𝗈 {user_mention},\n\n𝖯𝗅𝖾𝖺𝗌𝖾 𝗃𝗈𝗂𝗇 𝗈𝗎𝗋 𝖼𝗁𝖺𝗇𝗇𝖾𝗅 𝗍𝗈 𝗎𝗌𝖾 𝗍𝗁𝗂𝗌 𝖻𝗈𝗍,\n𝗍𝗁𝖾𝗇 𝖢𝗅𝗂𝖼𝗄 𝖳𝗋𝗒 𝖠𝗀𝖺𝗂𝗇.</b>",
                 reply_markup=InlineKeyboardMarkup(buttons)
             )
             return
 
     # If user is subscribed, show main welcome
-    reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
+    reply_message = f"𝖶𝖾𝗅𝖼𝗈𝗆𝖾, {user_mention}.\n\n𝖨 𝖺𝗆 𝖺 𝖳𝖾𝗋𝖺𝖻𝗈𝗑 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝗋 𝖡𝗈𝗍. 𝖲𝖾𝗇𝖽 𝗆𝖾 𝖺𝗇𝗒 𝗍𝖾𝗋𝖺𝖻𝗈𝗑 𝗅𝗂𝗇𝗄 \n𝗂 𝗐𝗂𝗅𝗅 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗐𝗂𝗍𝗁𝗂𝗇 𝖿𝖾𝗐 𝗌𝖾𝖼𝗈𝗇𝖽𝗌 𝖺𝗇𝖽 𝗌𝖾𝗇𝖽 𝗂𝗍 𝗍𝗈 𝗒𝗈𝗎✨."
 
-    join_button = InlineKeyboardButton("ᴊᴏɪɴ", url="https://t.me/lowerassam")
+    join_button = InlineKeyboardButton("ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ", url="https://t.me/AkashServers")
     developer_button = InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
 
