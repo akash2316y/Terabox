@@ -267,12 +267,13 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
                 progress=progress
             )
 
-        # Step 4: Copy to user
-copied_msg = await client.copy_message(
-    chat_id=message.chat.id,
-    from_chat_id=db_channel_id,
-    message_id=collection_message.id
-)
+# Step 4: Copy to user
+try:
+    copied_msg = await client.copy_message(
+        chat_id=message.chat.id,
+        from_chat_id=db_channel_id,
+        message_id=collection_message.id
+    )
 
 caption = f"✨ {video_title}\n⏱ Duration: {video_duration} sec\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 <b>ʙʏ @Javpostr </b>"
 
