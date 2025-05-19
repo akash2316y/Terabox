@@ -308,3 +308,15 @@ async def upload_video(client, file_path, thumbnail_url, video_title, reply_msg,
     except Exception as e:
         logging.error(f"Error during upload: {e}", exc_info=True)
         return None
+
+from moviepy.editor import VideoFileClip
+
+def get_video_duration(file_path):
+    try:
+        clip = VideoFileClip(file_path)
+        duration = int(clip.duration)
+        clip.close()
+        return duration
+    except Exception as e:
+        print(f"Error getting video duration: {e}")
+        return 0
