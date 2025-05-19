@@ -1,5 +1,5 @@
 import requests
-from config import CHNL_BTN, AUTH_CHANNEL
+from dotenv import load_dotenv
 import aria2p
 from datetime import datetime
 import aiohttp
