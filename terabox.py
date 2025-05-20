@@ -7,6 +7,8 @@ from datetime import datetime
 from pyrogram.enums import ChatMemberStatus
 from dotenv import load_dotenv
 import os
+user_queues = {}
+user_tasks = {}
 import time
 from video import download_video, upload_video
 from web import keep_alive
@@ -87,7 +89,7 @@ async def is_user_member(client, user_id):
         return False
 
 # Handle Terabox links
-@app.on_message(filters.text)
+@app.on_message(filters.text & filters.private)
 async def handle_message(client, message: Message):
     if message.from_user is None:
         logging.error("Message does not contain user information.")
@@ -96,6 +98,9 @@ async def handle_message(client, message: Message):
     user_id = message.from_user.id
     user_mention = message.from_user.mention
     is_member = await is_user_member(client, user_id)
+
+    if not is_member:
+        return await start_command(client, message)
 
     valid_domains = [
         'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com', 
@@ -107,26 +112,27 @@ async def handle_message(client, message: Message):
     terabox_link = message.text.strip()
 
     if not any(domain in terabox_link for domain in valid_domains):
-        return  # Ignore non-Terabox messages
+        return await message.reply_text("❌ Please send a valid Terabox link.")
 
-    reply_msg = await message.reply_text("𝖲𝖾𝗇𝖽𝗂𝗇𝗀 𝗒𝗈𝗎 𝗍𝗁𝖾 𝗆𝖾𝖽𝗂𝖺...🤤")
+    queue_position = len(user_queues.get(user_id, [])) + 1
+reply_msg = await message.reply_text(f"🔄 Processing...\nYour position in queue: **{queue_position}**")
 
-    try:
-        file_path, thumbnail_path, video_title, video_duration = await download_video(
-            terabox_link, reply_msg, user_mention, user_id
-        )
+    if user_id not in user_queues:
+        user_queues[user_id] = []
 
-        if file_path is None:
-            return await reply_msg.edit_text("Failed to download. The link may be broken.")
+    user_queues[user_id].append({
+        "url": terabox_link,
+        "reply_msg": reply_msg,
+        "user_mention": user_mention,
+        "message": message
+    })
 
-        await upload_video(
-            client, file_path, thumbnail_path, video_title, reply_msg,
-            user_mention, user_id, message
-        )
-
-    except Exception as e:
-        logging.error(f"Download error: {e}")
-        await reply_msg.edit_text("❌ API returned a broken link.")
+    if user_id not in user_tasks:
+        asyncio.create_task(queue_worker(user_id, client))
+else:
+    pending = len(user_queues[user_id])
+    await reply_msg.edit_text(f"⏳ Added to queue.\nCurrently you have **{pending} pending** task(s).")
+    
 
 # Handle button callbacks
 @app.on_callback_query()
@@ -184,6 +190,50 @@ async def handle_callback(client, callback_query):
         except Exception as e:
             logging.warning(f"Couldn't delete reply_to_message: {e}")
 
+@app.on_message(filters.command("cancel"))
+async def cancel_task(client: Client, message: Message):
+    user_id = message.from_user.id
+    task = user_tasks.get(user_id)
+    if task:
+        task.cancel()
+        await message.reply("❌ Your current task has been cancelled.")
+    else:
+        await message.reply("ℹ️ No active task found.")
+
+async def queue_worker(user_id, client):
+    while user_queues.get(user_id):
+        task_data = user_queues[user_id].pop(0)
+        task = asyncio.create_task(
+            process_download_upload(
+                client,
+                url=task_data['url'],
+                user_id=user_id,
+                reply_msg=task_data['reply_msg'],
+                user_mention=task_data['user_mention'],
+                message=task_data['message']
+            )
+        )
+        user_tasks[user_id] = task
+        try:
+            await task
+        except asyncio.CancelledError:
+            await task_data['reply_msg'].edit_text("❌ Your download has been canceled.")
+        finally:
+            user_tasks.pop(user_id, None)
+
+async def process_download_upload(client, url, user_id, reply_msg, user_mention, message):
+    try:
+        file_path, thumbnail_path, video_title, video_duration = await download_video(
+            url, reply_msg, user_mention, user_id
+        )
+        if not file_path:
+            await reply_msg.edit_text("❌ Download failed.")
+            return
+        await upload_video(client, file_path, thumbnail_path, video_title, reply_msg, user_mention, user_id, message)
+    except Exception as e:
+        logging.error(f"Error in process_download_upload: {e}")
+        await reply_msg.edit_text("❌ Something went wrong during processing.")
+        
 # Run bot
 if __name__ == "__main__":
     keep_alive()
