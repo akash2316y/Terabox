@@ -115,7 +115,7 @@ async def handle_message(client, message: Message):
         return await message.reply_text("❌ Please send a valid Terabox link.")
 
     queue_position = len(user_queues.get(user_id, [])) + 1
-reply_msg = await message.reply_text(f"🔄 Processing...\nYour position in queue: **{queue_position}**")
+    reply_msg = await message.reply_text(f"🔄 Processing...\nYour position in queue: **{queue_position}**")
 
     if user_id not in user_queues:
         user_queues[user_id] = []
@@ -129,10 +129,9 @@ reply_msg = await message.reply_text(f"🔄 Processing...\nYour position in queu
 
     if user_id not in user_tasks:
         asyncio.create_task(queue_worker(user_id, client))
-else:
-    pending = len(user_queues[user_id])
-    await reply_msg.edit_text(f"⏳ Added to queue.\nCurrently you have **{pending} pending** task(s).")
-    
+    else:
+        pending = len(user_queues[user_id])
+        await reply_msg.edit_text(f"⏳ Added to queue.\nCurrently you have **{pending} pending** task(s).")
 
 # Handle button callbacks
 @app.on_callback_query()
